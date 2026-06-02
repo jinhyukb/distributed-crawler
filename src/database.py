@@ -22,11 +22,13 @@ class DatabasePipeline:
             in_stock INTEGER NOT NULL,
             rating INTEGER NOT NULL,
             detail_url TEXT UNIQUE NOT NULL,
+            image_url TEXT NOT NULL,
+            author TEXT NOT NULL,
+            description TEXT NOT NULL,
             scraped_at TEXT NOT NULL
         );
         """
         index_query = "CREATE INDEX IF NOT EXISTS idx_books_price ON books (price);"
-        
         with self._get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(schema_query)
@@ -36,29 +38,26 @@ class DatabasePipeline:
     def bulk_insert_books(self, books: List[BaseModel]) -> Tuple[int, int]:
         if not books:
             return 0, 0
-
         upsert_query = """
-        INSERT INTO books (title, price, in_stock, rating, detail_url, scraped_at)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO books (title, price, in_stock, rating, detail_url, image_url, author, description, scraped_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(detail_url) DO UPDATE SET
             price = excluded.price,
             in_stock = excluded.in_stock,
             rating = excluded.rating,
+            image_url = excluded.image_url,
+            author = excluded.author,
+            description = excluded.description,
             scraped_at = excluded.scraped_at;
         """
-
         data_to_insert = [
             (
-                book.title,
-                book.price,
-                1 if book.in_stock else 0,
-                book.rating,
-                str(book.detail_url),
+                book.title, book.price, 1 if book.in_stock else 0, book.rating,
+                str(book.detail_url), str(book.image_url), book.author, book.description,
                 book.scraped_at.strftime("%Y-%m-%d %H:%M:%S")
             )
             for book in books
         ]
-
         try:
             with self._get_connection() as conn:
                 cursor = conn.cursor()

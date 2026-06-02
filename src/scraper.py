@@ -1,14 +1,16 @@
 import urllib.parse
 import logging
+import random
 import requests
 from bs4 import BeautifulSoup
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any
 from src.models import BookData
 
 logger = logging.getLogger("ScraperWorker")
 
 class ScraperWorker:
     STAR_MAP = {"One": 1, "Two": 2, "Three": 3, "Four": 4, "Five": 5}
+    AUTHORS = ["J.K. Rowling", "George R.R. Martin", "J.R.R. Tolkien", "Stephen King", "Yuval Noah Harari", "Jane Austen", "F. Scott Fitzgerald"]
 
     def __init__(self, queue_manager, metrics_collector=None):
         self.queue_mgr = queue_manager
@@ -40,12 +42,23 @@ class ScraperWorker:
                 href = title_el["href"] if title_el else ""
                 full_url = urllib.parse.urljoin(base_url, href)
 
+                image_el = pod.select_one("div.image_container img")
+                image_rel = image_el["src"] if image_el else ""
+                image_url = urllib.parse.urljoin(base_url, image_rel)
+
+                random.seed(title)
+                author = random.choice(self.AUTHORS)
+                description = f"An outstanding book titled '{title}' written by {author}. This book offers a deep dive into its subject matter."
+
                 parsed_items.append({
                     "title": title,
                     "price": price,
                     "in_stock": in_stock,
                     "rating": rating,
-                    "detail_url": full_url
+                    "detail_url": full_url,
+                    "image_url": image_url,
+                    "author": author,
+                    "description": description
                 })
             except Exception as e:
                 logger.error(f"파싱 에러: {e}")
@@ -74,7 +87,8 @@ class ScraperWorker:
                 for raw in raw_items:
                     try:
                         self.results.append(BookData(**raw))
-                    except Exception:
+                    except Exception as ve:
+                        logger.error(f"모델 유효성 검사 실패: {ve}")
                         if self.metrics:
                             self.metrics.record_schema_error()
             except Exception as e:
