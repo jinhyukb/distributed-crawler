@@ -41,6 +41,8 @@
 
 ## 📂 디렉터리 구조 및 파일 설명
 
+
+```
 distributed-crawler/
 ├── .github/
 │   └── workflows/
@@ -64,7 +66,7 @@ distributed-crawler/
 ├── main.py                     # 수집 작업을 개시하는 실행 시작점
 ├── main_api.py                 # FastAPI 및 통합 웹서버 구동 시작점
 └── requirements.txt            # 가동 필수 의존성 패키지 명세
-
+```
 
 ---
 
