@@ -41,7 +41,6 @@
 
 ## 📂 디렉터리 구조 및 파일 설명
 
-
 distributed-crawler/
 ├── .github/
 │   └── workflows/
@@ -60,11 +59,11 @@ distributed-crawler/
 │   ├── __init__.py
 │   ├── test_pipeline.py        # 유닛 테스트 모음 (확장형 스키마 검증)
 │   └── test_search_robustness.py # 100회 무작위 검색 API 스트레스 신뢰성 테스트
-├── Dockerfile                  # 애플리케이션 가상 이미지 정의
-├── docker-compose.yml          # Redis 컨테이너와 크롤러의 실시간 연결 오케스트레이션
+├── Dockerfile                  # 가비지 없는 격리된 가상 환경 정의
+├── docker-compose.yml          # Redis와 크롤러 앱의 로컬 통합 기동 스펙
 ├── main.py                     # 수집 작업을 개시하는 실행 시작점
-├── main_api.py                 # FastAPI 웹 서버 구동 시작점
-└── requirements.txt            # 프로젝트 구동에 필요한 라이브러리 명세
+├── main_api.py                 # FastAPI 및 통합 웹서버 구동 시작점
+└── requirements.txt            # 가동 필수 의존성 패키지 명세
 
 
 ---
