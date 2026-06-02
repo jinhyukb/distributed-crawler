@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: crawler_redis_broker
+    ports:
+      - "6379:6379"
+    restart: always
+    volumes:
+      - redis_data:/data
+
+  crawler-app:
+    build: .
+    container_name: crawler_worker_node
+    depends_on:
+      - redis
+    restart: on-failure
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - DB_PATH=/app/data/service_crawler.db
+    volumes:
+      - db_volume:/app/data
+
+volumes:
+  redis_data:
+  db_volume:
